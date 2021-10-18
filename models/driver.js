@@ -8,8 +8,9 @@ const driverSchema = new Schema({
     firstname: {
         type: String
     },
-    car_registration: {
-        type: String
+    car: {
+        type: Schema.Types.ObjectId,
+        ref: "car"
     }
 })
 const Driver = mongoose.model('driver', driverSchema);

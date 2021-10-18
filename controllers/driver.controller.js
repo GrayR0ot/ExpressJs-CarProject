@@ -1,34 +1,32 @@
 const Driver = require('../models/driver');
 
 exports.getDrivers = async function (req, res) {
-    const findMany = Driver.find({}, (fail, results) => {
-        if (results) {
-            return res.status(200).json(results);
-        }
-        if (fail) {
-            console.log(fail);
-            return res.status(200).json({error: fail});
-        }
+    const findMany = Driver.find({}).populate("car").then((results) => {
+        return res.status(200).json(results);
+    }).catch((fail) => {
+        console.log(fail);
+        return res.status(200).json({error: fail});
     });
 }
 
 exports.getDriverById = async function (req, res) {
-    const findOne = Driver.find({_id: req.params.id}, (fail, result) => {
-        if (result) {
-            return res.status(200).json(result);
-        }
-        if (fail) {
-            console.log(fail);
-            //return res.status(500).json({error: fail});
-            return res.status(200).json({error: 'Unable to find driver with ' + req.params.id + ' id!'})
-        }
+    const findOne = Driver.find({_id: req.params.id}).populate("car").then((result) => {
+        return res.status(200).json(result);
+    }).catch((fail) => {
+        console.log(fail);
+        //return res.status(500).json({error: fail});
+        return res.status(200).json({error: 'Unable to find driver with ' + req.params.id + ' id!'})
     });
 }
 
 exports.updateDriverById = async function (req, res) {
     const findOne = Driver.find({_id: req.params.id}, (fail, result) => {
         if (result) {
-            const updateOne = Driver.updateOne({lastname: req.body.lastname, firstname: req.body.firstname, car_registration : req.body.car_registration}, (fail, success) => {
+            const updateOne = Driver.updateOne({
+                lastname: req.body.lastname,
+                firstname: req.body.firstname,
+                car: req.body.car
+            }, (fail, success) => {
                 if (success) {
                     return res.status(200).json({success: 'Successfully updated ' + req.params.id + ' driver!'});
                 }
@@ -64,7 +62,7 @@ exports.deleteDriverById = async function (req, res) {
 exports.createDriver = async function (req, res) {
     const data = req.body;
     const newDriver = {
-        car_registration: data.car_registration,
+        car: data.car,
         lastname: data.lastname,
         firstname: data.firstname
     }
